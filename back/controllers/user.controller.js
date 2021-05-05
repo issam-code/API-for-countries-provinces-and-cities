@@ -8,7 +8,7 @@ module.exports = class Users{
     static async addUser(req,res){
         try {
             if(!(req.body.name && req.body.email && req.body.password)){
-                res.status(400).send("there is no body");
+                res.status(400).send("enter your informations");
             }
             if(req.body.name.length < 5 || req.body.password.length < 5){
                 res.status(400).send("length of each one most be more than 5");
@@ -23,7 +23,7 @@ module.exports = class Users{
             user.password = await bcrypt.hash(user.password , salt)
             await user.save();
             const token = user.generateAuthToken();
-            res.header("x-auth-token",token).send(_.pick(user , ['_id' , 'name' , 'email','roles' ]))
+            res.header("x-auth-token",token).send({user : _.pick(user , ['_id' , 'name' , 'email','roles' ]), token : token})
         } catch (error) {
             console.log(error)
             res.status(500).json({error: error})

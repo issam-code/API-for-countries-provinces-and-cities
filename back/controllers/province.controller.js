@@ -1,3 +1,4 @@
+const e = require("express");
 const City = require("../models/City");
 const Country = require("../models/Country");
 const Province = require("../models/Province");
@@ -11,9 +12,9 @@ module.exports = class Provinces{
          if(!country){
             res.status(404).send("There are no country with this name!")
          }
-         var province;
+         var province = [];
          if(req.query.name_province){
-            province = await Province.findOne({name : req.query.name_province , country : country._id})
+            province[0] = await Province.findOne({name : req.query.name_province , country : country._id})
             if(!province){res.send("There are no province with this name !")}
          }else{
             province = await Province.find({country : country._id})
@@ -30,16 +31,20 @@ module.exports = class Provinces{
       try {
          const country = await Country.findOne({code : req.params.name});
          if(!country){
-            res.send( "There is no country with this name" )
+            res.status(404).send( "There is no country with this name" )
          }
          if (req.body.length > 0){
             const a=[];
-            const b=[];
+            const c=[];
             for (let i = 0; i < req.body.length; i++) {
                const e = req.body[i];
+               if(!e.name){
+                  res.status(404).send("enter name") 
+                 }
+               
                const pr = await Province.findOne({name : e.name});
                if(pr){
-                  a.push( pr.name );
+                  a.push(pr.name );
                }else{
                   const p = new Province(req.body[i])
                   const province = await p.save();
@@ -51,14 +56,20 @@ module.exports = class Provinces{
                   await Country.updateOne({code : req.params.name}, {
                      $set: { provinces : provinces } },{ new : true}
                   );
-                  b.push(req.body[i].name);
+                  c.push(req.body[i].name);
                }
                
             }
-            res.send("Added Provinces : " + b + " \nExists Provinces : " + a );
-           }
-          else{
-           res.send("body not existed!") 
+            if(a.length > 0){
+               res.status(404).send(a + " : name is already exist" );
+            }
+          
+            if(c.length > 0){
+               res.send(c+ " is Added" );
+            }
+            
+         }else{
+           res.status(404).send("enter name") 
           }
          
       } catch (error) {
@@ -72,18 +83,21 @@ module.exports = class Provinces{
       try {
          const country = await Country.findOne({code : req.params.name});
          if(!country){
-            res.send( "There is no country with this code" )
+            res.status(404).send( "There is no country with this code" )
          }
          if(!req.query.id){
-            res.send("Enter the id !")
+            res.status(404).send("Enter the id !")
          }
          const province = await Province.findOne({"_id" : req.query.id });
          if( !province){
-            res.send("There is no province with this id !");
+            res.status(404).send("There is no province with this id !");
+         }
+         if(!req.body.name){
+            res.status(404).send("enter the name!");
          }
          const pr = await Province.findOne({name : req.body.name});
          if(pr){
-            res.send("'" + pr.name + "'  is already exist !");
+            res.status(404).send("'" + pr.name + "'  is already exist !");
          }
          const result = await Province.findByIdAndUpdate(req.query.id, { $set: req.body } , { new : true });
          res.json(result);

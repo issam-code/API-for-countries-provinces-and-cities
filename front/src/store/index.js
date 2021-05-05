@@ -7,9 +7,14 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     countries : [],
+    provinces : [],
+    cities : [],
     token : localStorage.getItem("token") || '',
   },
   mutations: {
+    async refCountry(state){
+      state.countries = (await axios.get("http://localhost:3000/api/countries/search")).data;
+    },
     auth(state, token){
       state.token = token;
     },
@@ -20,37 +25,42 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    // async add_country (country) {
-    //   let rep = ( await axios.post("http://localhost:3000/api/countries/create", country)).data;
-    //   console.log(rep);
-    // }
-     async add_user ( {}, user) {
-      try {
-        let reponse = await axios.post("http://localhost:3000/api/users/create", user);
-        if(reponse){
-          alert("you Logged up");
-          router.push("/")
-        }else{
-          alert("you do not Logged up , try again");        }
-      } catch (error) {
-        console.log(error);
-      }
+    async add_country (_,country) {
+      return await axios.post("http://localhost:3000/api/countries/create",country);
+    },
+    async update_country (_,c) {
+      return await axios.put("http://localhost:3000/api/countries/update?id="+c.id ,c.country)
+    },
+    async delete_country (_,id) {
+      return await axios.delete("http://localhost:3000/api/countries/delete?id="+id)
       
     },
-    async login ({commit}, user){
-      try {
-        let reponse = await axios.post("http://localhost:3000/api/users/login",user);
-        if(reponse){
-          router.push("Acceil")
-          localStorage.setItem("token", reponse.data);
-          commit('auth',reponse.data);
-          console.log("Logged in \n");
-        }else{
-          alert("email or password invalid !");
-        }
-      } catch (error) {
-        console.log(error);
-      }
+    async add_province (_,pr) {
+      return await axios.post("http://localhost:3000/api/countries/" + pr.code  + "/create",pr.name);
+    },
+    async update_province (_,pr) {
+      return await axios.put("http://localhost:3000/api/countries/" + pr.code  + "/update?id="+pr.id ,pr.name)
+    },
+    async delete_province (_,pr) {
+      return await axios.delete("http://localhost:3000/api/countries/" + pr.code  + "/delete?id="+pr.id);
+      
+    },
+    async add_city (_,city) {
+      return await axios.post("http://localhost:3000/api/countries/" + city.code  + "/" + city.name_pr + "/create",city.name);
+    },
+    async update_city (_,city) {
+      return await axios.put("http://localhost:3000/api/countries/" + city.code  + "/" + city.name_pr + "/update?id="+city.id ,city.name)
+    },
+    async delete_city (_,city) {
+      return await axios.delete("http://localhost:3000/api/countries/" + city.code  + "/" + city.name_pr + "/delete?id="+city.id);
+      
+    },
+    async add_user (_, user) {
+        return await axios.post("http://localhost:3000/api/users/create", user)
+      
+    },
+    async login (_, user){
+       return await axios.post("http://localhost:3000/api/users/login",user);
     }
   },
   modules: {},

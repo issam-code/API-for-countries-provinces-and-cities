@@ -8,9 +8,9 @@ module.exports = class Countries{
 
    static async getAllCountries(req,res){
       try {
-         var country;
+         var country = [];
          if(req.query.code){
-            country = await Country.findOne({code : req.query.code})
+            country[0] = await Country.findOne({code : req.query.code})
             if(!country){res.send("There are no country with this code !")}
          }else{
             country = await Country.find()
@@ -31,6 +31,9 @@ module.exports = class Countries{
             const c=[];
             for (let i = 0; i < req.body.length; i++) {
                const e = req.body[i];
+               if(!e.name || !e.code || !e.dialcode || !e.curency){
+                  res.status(404).send("enter informations of country !") 
+               }
                const country1 = await Country.findOne({name : e.name});
                const country2 = await Country.findOne({code : e.code});
                if(country1 || country2){
@@ -45,9 +48,17 @@ module.exports = class Countries{
                  c.push(req.body[i].name);
                }
             }
-            res.send("Added countries : " + c + " \nExists Countries name : " + a + " \nExists Countries code : " + b );
+            if(a.length > 0){
+               res.status(404).send(a + " : name is already exist" );
+            }
+            if(b.length > 0){
+               res.status(404).send(b + " : code is already exist" );
+            }
+            if(c.length > 0){
+               res.send(c+ " is Added" );
+            }
          }else{
-           res.send("body not existed!") 
+           res.status(404).send("enter informations of country !");
          }
     } catch (error) {
        res.status(500).json({error: error})
@@ -59,25 +70,41 @@ module.exports = class Countries{
   static async updateCountry(req,res){
       try {
          if(!req.query.id){
-            res.send("Enter the id !")
+            res.status(404).send("Enter the id !")
          }
-         var a="",b="";
+         if(!req.body.name){
+            res.status(404).send("Enter the name !")
+         }
+         if(!req.body.code){
+            res.status(404).send("Enter the code !")
+         }
+         if(!req.body.dialcode){
+            res.status(404).send("Enter the dialcode !")
+         }
+         if(!req.body.curency){
+            res.status(404).send("Enter the curency !")
+         }
+         var msg="";
          const country1 = await Country.findOne({name : req.body.name});
          const country2 = await Country.findOne({code : req.body.code});
          const country = await Country.findOne({"_id" : req.query.id });
          if(country1){
-            a=("'" + country1.name + "'  is already exist !");
+            msg +="name : " + country1.name + " already exist ! <br> ";
             req.body.name = country.name
          }
          if(country2){
-            b=("'" + country2.code + "'  is already exist !");
+            msg += "code : " + country2.code + " already exist !\n"
             req.body.code = country.code
          }
          if(!country){
-            res.send("There is no country with this id !");
+            res.status(404).send("There is no country with this id !");
          }
          const result = await Country.findByIdAndUpdate(req.query.id, { $set: req.body } , { new : true });
-         res.send(a + "\n" + b + "\n" + result);
+         if(msg){
+            res.status(404).send(msg );
+         }
+         res.send(result);
+
       } catch (error) {
          res.status(500).send({error: error})
       }
@@ -86,11 +113,11 @@ module.exports = class Countries{
    static async deleteCountry(req,res){
       try {
          if(!req.query.id){
-            res.send("Enter the id !")
+            res.status(404).send("Enter the id !")
          }
          const country = await Country.findOne({"_id": req.query.id});
          if(!country){
-            res.send( "There is no country with this id")
+            res.status(404).send( "There is no country with this id")
          }else{
             await City.deleteMany({country : country._id});
             await Province.deleteMany({country : country._id})

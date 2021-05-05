@@ -6,8 +6,8 @@
         <div class="row">
           <router-link v-if="!$store.state.token" style="color: white;  text-decoration:none; " class="col-md-6 col-6" :to="{ name: 'Login' }"><h5 >Sign In</h5></router-link>
           <router-link v-if="!$store.state.token" style="color: white;  text-decoration:none; "  class="col-md-6 col-6"  :to="{ name: 'Register' }"><h5 >Sign Up</h5></router-link>        
-          <h5 v-if="$store.state.token" style="color: white;  text-decoration:none; "  class="col-md-6 col-6"  @click="$store.commit('logout')" >Log out</h5>        
         </div>
+        <a href=""  class=" text-right"   style="color: white;  text-decoration:none; "><h5 v-if="$store.state.token"  @click="$store.commit('logout')" >Log out</h5></a>        
       </div>
       
        
