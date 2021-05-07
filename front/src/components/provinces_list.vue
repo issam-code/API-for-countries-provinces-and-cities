@@ -10,15 +10,21 @@
                         
                     </tr>
                 </thead>
-                <tbody v-for="(c,i) in this.$store.state.provinces" :key="i">
+                <tbody v-for="(c,i) in lists" :key="i">
                     <tr>
                         <td>{{i+1}}</td>
                         <a href="" @click="go_to_city(c.name)"><td >{{c.name}}</td></a>
-                        <td><i @click="delete_province(c._id)" class="fas fa-trash-alt"></i></td>
                         <td><i class="fas fa-edit" @click="name = c.name;id=c._id"  data-toggle="modal" data-target="#update_province"></i></td>
+                        <td><i @click="delete_province(c._id)" class="fas fa-trash-alt"></i></td>
                     </tr> 
                 </tbody>
             </table>
+            <b-pagination
+                style="place-content: center;"
+                :total-rows="totalRows" 
+                v-model="currentPage"
+                :per-page="perPage"
+            />
         </div>
 
 
@@ -29,14 +35,14 @@
                             <h3>Update Province</h3>	
                     </div>
                     <div class=" card-body " >
-                        <form class="frmm" method="post" enctype="multipart/form-data">
+                        <form class="frmm" method="post" @submit.prevent="update_province()" enctype="multipart/form-data">
                             <div class=" form-group">
                                 <label></label>
                                 <input v-model="name" type="text" class="form-control" placeholder="Name " required>
                             </div>
                             <span  class="text-center text-danger"><p v-html="msg"></p> </span>
                             <div class="card-footer">
-                            <button type="submit" @click.prevent="update_province()"  class="btn btn-primary container">Update</button>
+                            <button type="submit"   class="btn btn-primary container">Update</button>
                             </div>
                         </form>
                     </div><br>
@@ -54,10 +60,13 @@ export default {
     },
     data(){
         return {
+            currentPage: 1,
+            perPage: 5,
             id  : "",
             name : "",
         }
     },
+    
    methods : {
         delete_province : function(id) {
             var result = confirm("Want to delete?");
@@ -72,6 +81,18 @@ export default {
         go_to_city : function(name){
         this.$router.push({ path: `/Countries/${this.$route.params.code}/${name}` })
       }
-    } 
+    },
+    computed: {
+        lists () {
+        const items =  this.$store.state.provinces;
+        return items.slice(
+            (this.currentPage - 1) * this.perPage,
+            this.currentPage * this.perPage
+        )
+        },
+        totalRows () {
+        return  this.$store.state.provinces.length
+        }
+    },
 }
 </script>

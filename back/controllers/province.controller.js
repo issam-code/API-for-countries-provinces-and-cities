@@ -42,7 +42,7 @@ module.exports = class Provinces{
                   res.status(404).send("enter name") 
                  }
                
-               const pr = await Province.findOne({name : e.name});
+               const pr = await Province.findOne({name : e.name , country : country._id });
                if(pr){
                   a.push(pr.name );
                }else{
@@ -96,7 +96,7 @@ module.exports = class Provinces{
             res.status(404).send("enter the name!");
          }
          const pr = await Province.findOne({name : req.body.name});
-         if(pr){
+         if(pr  && req.query.id != pr._id){
             res.status(404).send("'" + pr.name + "'  is already exist !");
          }
          const result = await Province.findByIdAndUpdate(req.query.id, { $set: req.body } , { new : true });

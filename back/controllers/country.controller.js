@@ -88,11 +88,11 @@ module.exports = class Countries{
          const country1 = await Country.findOne({name : req.body.name});
          const country2 = await Country.findOne({code : req.body.code});
          const country = await Country.findOne({"_id" : req.query.id });
-         if(country1){
+         if(country1 && req.query.id != country1._id ){
             msg +="name : " + country1.name + " already exist ! <br> ";
             req.body.name = country.name
          }
-         if(country2){
+         if(country2 && req.query.id != country2._id){
             msg += "code : " + country2.code + " already exist !\n"
             req.body.code = country.code
          }

@@ -40,19 +40,15 @@ module.exports = class Cities{
          }
          if (req.body.length > 0){
             const a=[];
-            const c=[];
+            const b=[];
             for (let i = 0; i < req.body.length; i++) {
                const e = req.body[i];
-               if(!e.name){
-                  res.status(404).status(404).send("enter name") 
-                 }         
-               const city1 = await City.findOne({name: e.name })
+               const city1 = await City.findOne({name: e.name , province : province._id })
                if(city1){
                   a.push(city1.name );
                }else{
-                  const ct = new City(e)
-                  const city = await ct.save();
-                  c.push(e.name);
+                  const c = new City(req.body[i])
+                  const city = await c.save();
                   var cities = province.cities;
                   cities.push(city._id);
                   await City.updateOne(  {_id : city._id} , {
@@ -61,7 +57,7 @@ module.exports = class Cities{
                   await Province.updateOne({name : req.params.name_pr}, {
                      $set: { cities : cities } },{ new : true}
                   );
-                  
+                  b.push(req.body[i].name);
                }
          
             }
@@ -69,8 +65,8 @@ module.exports = class Cities{
                res.status(404).send(a + " : name is already exist" );
             }
          
-            if(c.length > 0){
-               res.send(c+ " is Added" );
+            if(b.length > 0){
+               res.send(b+ " is Added" );
             }
             
          }else{
@@ -103,7 +99,7 @@ module.exports = class Cities{
             res.status(404).send("enter the name!");
          }
          const city = await City.findOne({name : req.body.name});
-         if(city){
+         if(city  && req.query.id != city._id){
             res.status(404).send("'" + city.name + "'  is already exist !");
          }
          const result = await City.findByIdAndUpdate(req.query.id, { $set: req.body } , { new : true });

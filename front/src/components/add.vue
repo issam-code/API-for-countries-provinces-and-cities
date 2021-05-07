@@ -15,7 +15,7 @@
                             <h3>Add {{name}}</h3>	
                     </div>
                     <div class=" card-body " >
-                        <form v-if="name == 'Country'" class="frmm" method="post" enctype="multipart/form-data">
+                        <form v-if="name == 'Country'" @submit.prevent="add_country()" class="frmm" method="post" enctype="multipart/form-data">
                             <input type="file" accept=".xls,.xlsx" @change="readExcel" value="import excel">
                             <div class=" form-group">
                                 <label></label>
@@ -35,10 +35,10 @@
                             </div>
                                 <span  class="text-center text-danger"><p >{{msg}}</p> </span>
                             <div class="card-footer">
-                            <button type="submit" @click.prevent="add_country()"  class="btn btn-primary container">Add</button>
+                            <button type="submit"   class="btn btn-primary container">Add</button>
                             </div>
                         </form>
-                        <form v-if="name == 'Province'" class="frmm" method="post" enctype="multipart/form-data">
+                        <form v-if="name == 'Province'" @submit.prevent="add_province()" class="frmm" method="post" enctype="multipart/form-data">
                             <input type="file" accept=".xls,.xlsx" @change="readExcel" value="import excel">
                             <div class=" form-group">
                                 <label></label>
@@ -46,10 +46,10 @@
                             </div>
                                 <span  class="text-center text-danger"><p >{{msg}}</p> </span>
                             <div class="card-footer">
-                            <button type="submit" @click.prevent="add_province()"  class="btn btn-primary container">Add</button>
+                            <button type="submit" class="btn btn-primary container">Add</button>
                             </div>
                         </form>
-                         <form v-if="name == 'City'" class="frmm" method="post" enctype="multipart/form-data">
+                         <form v-if="name == 'City'" @submit.prevent="add_city()" class="frmm" method="post" enctype="multipart/form-data">
                             <input type="file" accept=".xls,.xlsx" @change="readExcel" value="import excel">
                             <div class=" form-group">
                                 <label></label>
@@ -57,7 +57,7 @@
                             </div>
                                 <span  class="text-center text-danger"><p >{{msg}}</p> </span>
                             <div class="card-footer">
-                            <button type="submit" @click.prevent="add_city()"  class="btn btn-primary container">Add</button>
+                            <button type="submit" class="btn btn-primary container">Add</button>
                             </div>
                         </form>
                     </div><br>
@@ -92,6 +92,7 @@ export default {
         }
     },
     methods : {
+        
          readExcel(e) {
         const files = e.target.files;
         const fileReader = new FileReader(); // construction function that can read the file content
@@ -106,23 +107,31 @@ export default {
         fileReader.readAsBinaryString(files[0]); // read file, trigger onload
         },
         add_country : function() {
-            if(this.tab.length < 1){
+            // if(this.tab.length < 1){
+            //     this.tab.push(this.country);
+            // }
+            if(this.country.name && this.country.code && this.country.dialcode && this.country.curency){
                 this.tab.push(this.country);
+                this.$emit('add_country',[this.country]);
+                this.msg = "";
             }
-            this.$emit('add_country',this.tab);
+            
             
         },
         add_province : function() {
-            if(this.tab.length < 1){
-            this.tab.push({name : this.name_pr});
+           if(this.name_pr){
+                this.tab.push({name : this.name_pr});
+                this.$emit('add_province',[{name : this.name_pr}]);
+                this.msg = "";
             }
-            this.$emit('add_province',this.tab);
         },
         add_city : function() {
-            if(this.tab.length < 1){
+           if(this.name_city){
                 this.tab.push({name : this.name_city});
+                this.$emit('add_city',[{name : this.name_city}]);
+                this.msg = "";
             }
-            this.$emit('add_city',this.tab);
+            
         },
         search : async function(){
             if(this.name == "Country"){
@@ -135,7 +144,7 @@ export default {
             }
             if(this.name == "City"){
                 this.$store.state.cities = []; 
-                this.$store.state.cities = (await axios.get("http://localhost:3000/api/countries/" +  this.$route.params.code + "/" + this.$route.params.name_pr + "/search?name_city="+this.code)).data;
+                this.$store.state.cities = (await axios.get("http://localhost:3000/api/countries/" +  this.$route.params.code + "/" + this.$route.params.name_pr + "/1/search?name_city="+this.code)).data;
             }
         }
     }

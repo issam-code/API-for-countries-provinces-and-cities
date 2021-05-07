@@ -5,8 +5,7 @@
 </div>
 </template>
 <script>
-import axios from 'axios';
-// import store from '../store/index'
+
 import countries_list from "../components/countries_list";
 import add_country from "../components/add";
 import $ from 'jquery';
@@ -22,8 +21,7 @@ export default {
      }
    },
     async created () {
-      this.$store.state.countries = (await axios.get("http://localhost:3000/api/countries/search?")).data;
-      axios.defaults.headers.common['x-auth-token'] = localStorage.getItem("token");
+      this.$store.commit('refCountry');
     },
     methods : {
     add_country :   function(country){
@@ -31,12 +29,12 @@ export default {
       .then(async (reponse) => {
         $('#add')
             .modal('hide')
-            // .find("input")
-            // .val('')
-            // .end();
+            .find("input")
+            .val('')
+            .end();
         alert(reponse.data);
-        this.$store.state.countries = (await axios.get("http://localhost:3000/api/countries/search?")).data;
-      })
+        this.$store.commit('refCountry');
+        })
       .catch((errors) => {
         this.msg = errors.response.data;
       });
@@ -51,20 +49,20 @@ export default {
             .modal('hide')
             // .find("input")
             // .val('');
-        this.$store.state.countries = (await axios.get("http://localhost:3000/api/countries/search?")).data;
-      })
+        this.$store.commit('refCountry');
+        })
       .catch(async (errors) => {
           this.msg=errors.response.data;
         console.log(errors);
-        this.$store.state.countries = (await axios.get("http://localhost:3000/api/countries/search?")).data;
-      });
+        this.$store.commit('refCountry');
+        });
     },
     delete_country  :  function(id){
       this.$store.dispatch('delete_country',id)
       .then( async (reponse) => {
         alert(reponse.data);
-        this.$store.state.countries = (await axios.get("http://localhost:3000/api/countries/search?")).data;
-      })
+        this.$store.commit('refCountry');
+        })
       .catch((errors) => {
         alert("try again, country not deleted ! !")
         console.log(errors)

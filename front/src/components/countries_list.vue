@@ -12,18 +12,24 @@
                         <th scope="col" class="tha">Curency</th>
                     </tr>
                 </thead>
-                <tbody v-for="(c,i) in this.$store.state.countries" :key="i">
+                <tbody v-for="(c,i) in lists" :key="i">
                     <tr>
                         <td>{{i+1}}</td>
                         <a href="" @click="go_to_pr(c.code)"><td >{{c.name}}</td></a>
                         <td>{{c.code}}</td>
                         <td>{{c.dialcode}}</td>
                         <td>{{c.curency}}</td>
-                        <td><i @click="delete_country(c._id)" class="fas fa-trash-alt"></i></td>
                         <td><i class="fas fa-edit" @click="country = c;id=c._id"  data-toggle="modal" data-target="#update_country"></i></td>
+                        <td><i @click="delete_country(c._id)" class="fas fa-trash-alt"></i></td>
                     </tr> 
                 </tbody>
             </table>
+            <b-pagination
+                style="place-content: center;"
+                :total-rows="totalRows" 
+                v-model="currentPage"
+                :per-page="perPage"
+            />
         </div>
 
 
@@ -34,7 +40,7 @@
                             <h3>Update Country</h3>	
                     </div>
                     <div class=" card-body " >
-                        <form class="frmm" method="post" enctype="multipart/form-data">
+                        <form class="frmm" method="post" @submit.prevent="update_country()" enctype="multipart/form-data">
                             <div class=" form-group">
                                 <label></label>
                                 <input v-model="country.name" type="text" class="form-control" placeholder="Name " required>
@@ -53,7 +59,7 @@
                             </div>
                                 <span  class="text-center text-danger"><p v-html="msg"></p> </span>
                             <div class="card-footer">
-                            <button type="submit" @click.prevent="update_country()"  class="btn btn-primary container">Update</button>
+                            <button type="submit"   class="btn btn-primary container">Update</button>
                             </div>
                         </form>
                     </div><br>
@@ -64,8 +70,6 @@
     </div>
 </template>
 <script>
-// import $ from 'jquery';
-
 export default {
     name : "country",
     props : {
@@ -73,6 +77,9 @@ export default {
     },
     data(){
         return {
+            data : [],
+            currentPage: 1,
+            perPage: 5,
             id  : "",
              country : {
                 name : "",
@@ -82,9 +89,8 @@ export default {
             },
         }
     },
+    
    methods : {
-
-       
         delete_country : function(id) {
             var result = confirm("Want to delete?");
             if (result) {
@@ -98,6 +104,18 @@ export default {
          go_to_pr : function(code){
         this.$router.push({ path: `/Countries/${code}` })
       }
-    } 
+    },
+    computed: {
+    lists () {
+      const items = this.$store.state.countries;
+      return items.slice(
+        (this.currentPage - 1) * this.perPage,
+        this.currentPage * this.perPage
+      )
+    },
+    totalRows () {
+      return this.$store.state.countries.length
+    }
+  },
 }
 </script>

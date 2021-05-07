@@ -5,8 +5,7 @@
 </div>
 </template>
 <script>
-import axios from 'axios';
-// import store from '../store/index'
+
 import $ from 'jquery';
 import cities_list from "../components/cities_list";
 import add_city from "../components/add";
@@ -23,20 +22,18 @@ export default {
     },
    
     async created () {
-        this.$store.state.cities = (await axios.get("http://localhost:3000/api/countries/" +  this.$route.params.code + "/" + this.$route.params.name_pr + "/search?")).data;
-        axios.defaults.headers.common['x-auth-token'] = localStorage.getItem("token");
-    },
+        this.$store.commit('refCity');    },
     methods : {
          add_city :   function(city){
             this.$store.dispatch('add_city',{name : city, code : this.$route.params.code , name_pr : this.$route.params.name_pr} )
             .then(async (reponse) => {
                 $('#add')
                     .modal('hide')
-                    // .find("input")
-                    // .val('')
-                    // .end();
+                    .find("input")
+                    .val('')
+                    .end();
                 alert(reponse.data);
-                this.$store.state.cities = (await axios.get("http://localhost:3000/api/countries/" +  this.$route.params.code + "/" + this.$route.params.name_pr + "/search?")).data;
+                this.$store.commit('refCity');
             })
             .catch((errors) => {
                 this.msg = errors.response.data;
@@ -48,7 +45,7 @@ export default {
                 this.$store.dispatch('delete_city',{id : id, code : this.$route.params.code , name_pr : this.$route.params.name_pr} )
                 .then( async (reponse) => {
                     alert(reponse.data);
-                    this.$store.state.cities = (await axios.get("http://localhost:3000/api/countries/" +  this.$route.params.code + "/" + this.$route.params.name_pr + "/search?")).data;
+                    this.$store.commit('refCity');
                 })
                 .catch((errors) => {
                     alert("try again, city not deleted ! !")
@@ -63,12 +60,12 @@ export default {
                         .modal('hide')
                         // .find("input")
                         // .val('');
-                    this.$store.state.cities = (await axios.get("http://localhost:3000/api/countries/" +  this.$route.params.code + "/" + this.$route.params.name_pr + "/search?")).data;
+                    this.$store.commit('refCity');
                 })
                 .catch(async (errors) => {
                     this.msg=errors.response.data;
                     console.log(errors);
-                    this.$store.state.cities = (await axios.get("http://localhost:3000/api/countries/" +  this.$route.params.code + "/" + this.$route.params.name_pr + "/search?")).data;
+                    this.$store.commit('refCity');
                 });
                 this.msg = "";
             },
