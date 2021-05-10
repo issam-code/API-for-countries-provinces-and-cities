@@ -13,20 +13,18 @@ module.exports = class Provinces{
             res.status(404).send("There are no country with this name!")
          }
          var province = [];
-         var limit = 5;
-         var page = req.params.page || 1;
-         if(req.query.name_province){
-            province[0] = await Province.findOne({name : req.query.name_province , country : country._id})
+         var size = 0;
+         var limit = parseInt(req.query.limit) || 5;
+         var page = parseInt(req.query.page) || 0;
+         if(req.query.name){
+            province[0] = await Province.findOne({name : req.query.name , country : country._id})
             if(!province){res.send("There are no province with this name !")}
          }else{
-            if(page == "size"){
-                province = await Province.find({country : country._id});
-               res.json({size : province.length, limit : limit});
-            }else{
-                province = await Province.find({country : country._id}).skip(page * limit).limit(limit);
-            }
+            size =(await Province.find({country : country._id})).length;
+            province = await Province.find({country : country._id}).skip(page * limit).limit(limit);
+           
          }
-         province.length < 1 ? res.status(404).send("There are no province published yet!")  : res.json(province);
+         province.length < 1 ? res.status(404).send("There are no province published yet!")  : res.json({province : province, size : size});
          
       } catch (error) {
          res.status(500).json({error: error})

@@ -4,11 +4,13 @@
             <button type="button" class="btn btn-dark  col-md-2  container" data-toggle="modal" data-target="#add">
                 Add {{name}}
             </button>
-            <input class="form-control col-md-3 container" type="text" v-model="code" @keyup="search()"  :placeholder="'Search by '+type_search">
-           
+            <input class="form-control col-md-3 container" type="text" v-model="code" @keyup.enter="search()"  :placeholder="'Search by '+type_search">            
         </div>
-
-
+        <div style="    width: 15%; margin-left: 20%;">
+            <b-form-select @change="change" v-model="$store.state.limit" :options="options"></b-form-select>
+        </div>
+           
+        <br>
         <div class="modal" id="add" >
             <div  class="col-md-5 container my-5 " >
                 <div class="card">  
@@ -20,10 +22,10 @@
                             <div class="col-md-10">
                                 <div class="row"> 
                                     <div class="col-md-6">
-                                        <b-form-radio   v-model="method" :aria-describedby="ariaDescribedby" name="some-radios" value="0">With File</b-form-radio>
+                                        <b-form-radio  v-model="method" :aria-describedby="ariaDescribedby" name="some-radios" value="1">With Form </b-form-radio>
                                     </div>
                                     <div class="col-md-6">
-                                        <b-form-radio  v-model="method" :aria-describedby="ariaDescribedby" name="some-radios" value="1">With Form </b-form-radio>
+                                        <b-form-radio   v-model="method" :aria-describedby="ariaDescribedby" name="some-radios" value="0">With File</b-form-radio>
                                     </div>
                                 </div>
                             </div>
@@ -31,8 +33,28 @@
                     </b-form-group>
                     <div class=" card-body" >
                         <form v-if="name == 'Country'" @submit.prevent="add_country()" class="frmm" method="post" enctype="multipart/form-data">
-                            <div v-if="method == 0">
-                                <form method="post" >
+                           <div v-if="method == 0">
+                                 <form method="post" >
+                                <div class="row" style=" margin: -8px;">
+                                    <div class=" form-group col-md-6">
+                                        <label>name</label>
+                                        <input name="name" v-model="colonnes.name" type="text" class="form-control" placeholder="Name " required>
+                                    </div>
+                                    <div class=" form-group col-md-6">
+                                       <label>code</label>
+                                        <input name="code" v-model="colonnes.code" type="text" class="form-control" placeholder="Code " required>
+                                    </div>
+                                </div>
+                                 <div class="row" style="  margin: -8px;">
+                                     <div class=" form-group col-md-6">
+                                        <label>dialcode</label>
+                                      <input name="dialcode" v-model="colonnes.dialcode" type="text" class="form-control" placeholder="Dialcode" required>
+                                    </div>
+                                    <div class=" form-group col-md-6">
+                                      <label>curency</label>
+                                      <input v-model="colonnes.curency" name="curency" type="text" class="form-control" placeholder="Curency" required>
+                                    </div>
+                                </div> 
                                     <div class="form-group files">
                                         <input id="fl"  type="file" accept=".xls,.xlsx" @change="readExcel" value="import excel">
                                     </div> 
@@ -103,8 +125,8 @@
     
 </template>
 <script>
-
-  import XLSX from 'xlsx';
+// import _ from 'lodash';
+import XLSX from 'xlsx';
 import axios from 'axios';
 export default {
     name : "add_country",
@@ -115,9 +137,22 @@ export default {
     },
     data(){
         return{
+             options: [
+                { value: 3 , text: '3' },
+                { value: 5 , text: '5' },
+                { value: 10, text: '10' },
+                { value: 15, text: '15' },
+                { value: 15, text: '20'}
+            ],
             name_file : "",
-            method : 0,
+            method : 1,
             country : {
+                name : "",
+                code : "",
+                dialcode : "",
+                curency : "",
+            },
+            colonnes : {
                 name : "",
                 code : "",
                 dialcode : "",
@@ -131,7 +166,21 @@ export default {
     },
     methods : {
         
+        change(){
+            if(this.name == "Country"){
+                this.$store.commit('refCountry');
+            }
+            if(this.name == "Province"){
+                this.$store.commit('refProvince');
+            }
+            if(this.name == "City"){
+                this.$store.commit('refCity');
+            }
+       },
          readExcel(e) {
+            // _.delay(function() {
+            //     console.log("content");
+            //     }, 3000);
         const files = e.target.files;
         this.name_file=files[0].name;
 
@@ -203,17 +252,20 @@ export default {
         search : async function(){
             if(this.name == "Country"){
                 this.$store.state.countries = []; 
-                this.$store.state.countries = (await axios.get("http://localhost:3000/api/countries/" + this.$store.state.page + "/search?code="+this.code)).data;
+                this.$store.state.countries = (await axios.get("http://localhost:3000/api/countries/search?code="+this.code+ "&page="+this.$store.state.page)).data.country;
             }
             if(this.name == "Province"){
                 this.$store.state.provinces = []; 
-                this.$store.state.provinces = (await axios.get("http://localhost:3000/api/countries/" +  this.$route.params.code + "/" + this.$store.state.page + "/search?name_province="+this.code)).data;
+                this.$store.state.provinces = (await axios.get("http://localhost:3000/api/countries/" +  this.$route.params.code + "/search?name="+this.code+ "&page="+this.$store.state.page)).data.province;
             }
             if(this.name == "City"){
                 this.$store.state.cities = []; 
-                this.$store.state.cities = (await axios.get("http://localhost:3000/api/countries/" +  this.$route.params.code + "/" + this.$route.params.name_pr + "/"+ this.$store.state.page + "/search?name_city="+this.code)).data;
+                this.$store.state.cities = (await axios.get("http://localhost:3000/api/countries/" +  this.$route.params.code + "/" + this.$route.params.name_pr + "/search?name="+this.code + "&page="+this.$store.state.page)).data.city;
             }
         }
+    },
+    watch:{
+        
     }
 }
 </script>

@@ -30,7 +30,7 @@ export default {
         $('#add')
             .modal('hide')
             .find("input")
-            .val('')
+            .val(null)
             .end();
         alert(reponse.data);
         this.$store.commit('refCountry');

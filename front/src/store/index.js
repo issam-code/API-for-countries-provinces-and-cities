@@ -10,21 +10,25 @@ export default new Vuex.Store({
     provinces : [],
     cities : [],
     token : localStorage.getItem("token") || '',
-    params : {},
+    limit : 5,
+    size : 0,
     page : 0,
   },
   mutations: {
     async refCountry(state){
-      state.countries = (await axios.get("http://localhost:3000/api/countries/" + state.page+ "/search")).data;
-      state.params = (await axios.get("http://localhost:3000/api/countries/size/search?")).data;
+      var obj =  (await axios.get("http://localhost:3000/api/countries/search?page="+state.page+"&limit="+state.limit)).data
+      state.countries = obj.country;
+      state.size = obj.size;
     },
     async refProvince(state){
-      state.provinces = (await axios.get("http://localhost:3000/api/countries/" + router.currentRoute.params.code + "/" + state.page + "/search?")).data;
-      state.params = (await axios.get("http://localhost:3000/api/countries/" + router.currentRoute.params.code + "/size/search?")).data;
+      var obj = (await axios.get("http://localhost:3000/api/countries/" + router.currentRoute.params.code + "/search?page="+state.page+"&limit="+state.limit)).data
+      state.provinces = obj.province;
+      state.size = obj.size;
     },
     async refCity(state){
-      state.cities = (await axios.get("http://localhost:3000/api/countries/" + router.currentRoute.params.code + "/" +router.currentRoute.params.name_pr + "/" + state.page + "/search?")).data;
-      state.params = (await axios.get("http://localhost:3000/api/countries/" + router.currentRoute.params.code + "/" +router.currentRoute.params.name_pr + "/size/search?")).data;
+      var obj =(await axios.get("http://localhost:3000/api/countries/" + router.currentRoute.params.code + "/" +router.currentRoute.params.name_pr + "/search?page="+state.page+"&limit="+state.limit)).data
+      state.cities = obj.city;
+      state.size = obj.size;
     },
     auth(state, token){
       state.token = token;

@@ -15,20 +15,17 @@ module.exports = class Cities{
             res.status(404).send("There are no province with this name!")
             }
             var city = [];
-            var limit = 5;
-            var page = req.params.page || 1;
-            if(req.query.name_city){
-               city[0] = await City.findOne({name : req.query.name_city , country : country._id, province: province._id})
+            var size = 0;
+            var limit = parseInt(req.query.limit) || 5;
+            var page = parseInt(req.query.page) || 0;
+            if(req.query.name){
+               city[0] = await City.findOne({name : req.query.name , country : country._id, province: province._id})
                if(!city){res.status(404).send("There are no city with this name !")}
             }else{
-               if(page == "size"){
-                  city = await City.find({country : country._id, province: province._id});
-                  res.json({size : city.length, limit : limit});
-               }else{
-                  city = await City.find({country : country._id, province: province._id}).skip(page * limit).limit(limit);
-               }
+               size =(await City.find({country : country._id, province: province._id})).length;
+               city = await City.find({country : country._id, province: province._id}).skip(page * limit).limit(limit);
             }
-            city.length < 1 ? res.status(404).send("There are no city published yet!")  : res.json(city);
+            city.length < 1 ? res.status(404).send("There are no city published yet!")  : res.json({city : city, size : size});
       } catch (error) {
          res.status(500).json({error: error})
       }

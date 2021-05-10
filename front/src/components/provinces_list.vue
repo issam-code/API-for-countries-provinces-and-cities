@@ -22,8 +22,8 @@
              <b-pagination
                 style="place-content: center;"                
                 v-model="page"
-                :total-rows=" this.$store.state.params.size" 
-                :per-page="this.$store.state.params.limit"
+                :total-rows=" this.$store.state.size" 
+                :per-page="this.$store.state.limit"
                 @change="change"
             />
         </div>
