@@ -9,11 +9,19 @@ module.exports = class Countries{
    static async getAllCountries(req,res){
       try {
          var country = [];
+         var limit = 5;
+         var page = req.params.page || 1;
          if(req.query.code){
             country[0] = await Country.findOne({code : req.query.code})
             if(!country){res.send("There are no country with this code !")}
          }else{
-            country = await Country.find()
+             if(page == "size"){
+                  country = await Country.find();
+                  res.json({size : country.length, limit : limit});
+               }else{
+                  country = await Country.find().skip(page * limit).limit(limit);
+               }
+            
          }
          
          country.length < 1 ? res.status(404).send("There are no country published yet!")  : res.json(country);

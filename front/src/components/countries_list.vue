@@ -12,7 +12,7 @@
                         <th scope="col" class="tha">Curency</th>
                     </tr>
                 </thead>
-                <tbody v-for="(c,i) in lists" :key="i">
+                <tbody v-for="(c,i) in this.$store.state.countries" :key="i">
                     <tr>
                         <td>{{i+1}}</td>
                         <a href="" @click="go_to_pr(c.code)"><td >{{c.name}}</td></a>
@@ -24,11 +24,12 @@
                     </tr> 
                 </tbody>
             </table>
-            <b-pagination
-                style="place-content: center;"
-                :total-rows="totalRows" 
-                v-model="currentPage"
-                :per-page="perPage"
+             <b-pagination
+                style="place-content: center;"                
+                v-model="page"
+                :total-rows=" this.$store.state.params.size" 
+                :per-page="this.$store.state.params.limit"
+                @change="change"
             />
         </div>
 
@@ -77,9 +78,7 @@ export default {
     },
     data(){
         return {
-            data : [],
-            currentPage: 1,
-            perPage: 5,
+            page: 1,
             id  : "",
              country : {
                 name : "",
@@ -91,6 +90,11 @@ export default {
     },
     
    methods : {
+       change(value){
+           this.page = value;
+            this.$store.state.page = this.page -1 ;
+            this.$store.commit('refCountry');
+       },
         delete_country : function(id) {
             var result = confirm("Want to delete?");
             if (result) {
@@ -105,17 +109,6 @@ export default {
         this.$router.push({ path: `/Countries/${code}` })
       }
     },
-    computed: {
-    lists () {
-      const items = this.$store.state.countries;
-      return items.slice(
-        (this.currentPage - 1) * this.perPage,
-        this.currentPage * this.perPage
-      )
-    },
-    totalRows () {
-      return this.$store.state.countries.length
-    }
-  },
+    
 }
 </script>

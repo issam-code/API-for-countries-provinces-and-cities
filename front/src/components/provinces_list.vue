@@ -10,7 +10,7 @@
                         
                     </tr>
                 </thead>
-                <tbody v-for="(c,i) in lists" :key="i">
+                <tbody v-for="(c,i) in this.$store.state.provinces" :key="i">
                     <tr>
                         <td>{{i+1}}</td>
                         <a href="" @click="go_to_city(c.name)"><td >{{c.name}}</td></a>
@@ -19,11 +19,12 @@
                     </tr> 
                 </tbody>
             </table>
-            <b-pagination
-                style="place-content: center;"
-                :total-rows="totalRows" 
-                v-model="currentPage"
-                :per-page="perPage"
+             <b-pagination
+                style="place-content: center;"                
+                v-model="page"
+                :total-rows=" this.$store.state.params.size" 
+                :per-page="this.$store.state.params.limit"
+                @change="change"
             />
         </div>
 
@@ -60,14 +61,18 @@ export default {
     },
     data(){
         return {
-            currentPage: 1,
-            perPage: 5,
+            page: 1,
             id  : "",
             name : "",
         }
     },
     
    methods : {
+       change(value){
+           this.page = value;
+            this.$store.state.page = this.page -1 ;
+            this.$store.commit('refProvince');
+       },
         delete_province : function(id) {
             var result = confirm("Want to delete?");
             if (result) {
@@ -82,17 +87,6 @@ export default {
         this.$router.push({ path: `/Countries/${this.$route.params.code}/${name}` })
       }
     },
-    computed: {
-        lists () {
-        const items =  this.$store.state.provinces;
-        return items.slice(
-            (this.currentPage - 1) * this.perPage,
-            this.currentPage * this.perPage
-        )
-        },
-        totalRows () {
-        return  this.$store.state.provinces.length
-        }
-    },
+    
 }
 </script>

@@ -10,7 +10,7 @@
                         
                     </tr>
                 </thead>
-                <tbody v-for="(c,i) in lists" :key="i">
+                <tbody v-for="(c,i) in this.$store.state.cities" :key="i">
                     <tr>
                         <td>{{i+1}}</td>
                         <td>{{c.name}}</td>
@@ -20,10 +20,11 @@
                 </tbody>
             </table>
             <b-pagination
-                style="place-content: center;"
-                :total-rows="totalRows" 
+                style="place-content: center;"                
                 v-model="page"
-                :per-page="limit"
+                :total-rows=" this.$store.state.params.size" 
+                :per-page="this.$store.state.params.limit"
+                @change="change"
             />
         </div>
 
@@ -62,13 +63,17 @@ export default {
     data(){
         return {
             page: 1,
-            limit: 3,
             id  : "",
             name : "",
         }
     },
     
    methods : {
+       change(value){
+           this.page = value;
+            this.$store.state.page = this.page -1 ;
+            this.$store.commit('refCity');
+       },
         delete_city : function(id) {
             var result = confirm("Want to delete?");
             if (result) {
@@ -81,16 +86,19 @@ export default {
         },
     },
     computed: {
-        lists () {
-        const items = this.$store.state.cities;
-        return items.slice(
-            (this.page - 1) * this.limit,
-            this.page * this.limit
-        )
-        },
-        totalRows () {
-        return this.$store.state.cities.length
-        }
+        // lists () {
+        // return items.slice(
+        //     (this.page - 1) * this.limit,
+        //     this.page * this.limit
+        // )
+        // },
+        // size () {
+        //     if(this.page !=  this.$store.state.page){
+        //         this.page =  this.$store.state.page;
+        //         this.$store.commit('refCity');
+        //     }else{}
+            
+        // }
     },
 }
 </script>
