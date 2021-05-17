@@ -35,24 +35,24 @@
                         <form v-if="name == 'Country'" @submit.prevent="add_country()" class="frmm" method="post" enctype="multipart/form-data">
                            <div v-if="method == 0">
                                  <form method="post" >
-                                <div class="row" style=" margin: -8px;">
-                                    <div class=" form-group col-md-6">
-                                        <label>name</label>
-                                        <input name="name" v-model="colonnes.name" type="text" class="form-control" placeholder="Name " required>
-                                    </div>
+                                    <div class="row" style=" margin: -8px;">
+                                        <div class=" form-group col-md-6">
+                                            <label>name</label>
+                                            <b-form-select  v-model="colonnes.name" :options="keys_file"></b-form-select>
+                                        </div>
                                     <div class=" form-group col-md-6">
                                        <label>code</label>
-                                        <input name="code" v-model="colonnes.code" type="text" class="form-control" placeholder="Code " required>
+                                        <b-form-select  v-model="colonnes.code" :options="keys_file"></b-form-select>
                                     </div>
                                 </div>
                                  <div class="row" style="  margin: -8px;">
                                      <div class=" form-group col-md-6">
                                         <label>dialcode</label>
-                                      <input name="dialcode" v-model="colonnes.dialcode" type="text" class="form-control" placeholder="Dialcode" required>
+                                        <b-form-select  v-model="colonnes.dialcode" :options="keys_file"></b-form-select>
                                     </div>
                                     <div class=" form-group col-md-6">
                                       <label>curency</label>
-                                      <input v-model="colonnes.curency" name="curency" type="text" class="form-control" placeholder="Curency" required>
+                                      <b-form-select  v-model="colonnes.curency" :options="keys_file"></b-form-select>
                                     </div>
                                 </div> 
                                     <div class="form-group files">
@@ -87,6 +87,10 @@
                         <form v-if="name == 'Province'" @submit.prevent="add_province()" class="frmm" method="post" enctype="multipart/form-data">
                             <div v-if="method == 0">
                                 <form method="post" >
+                                    <div class=" form-group col-md-6">
+                                        <label>name</label>
+                                        <b-form-select  v-model="name_pr" :options="keys_file"></b-form-select>
+                                    </div>
                                     <div class="form-group files">
                                         <input  type="file" accept=".xls,.xlsx" @change="readExcel" value="import excel">
                                     </div> 
@@ -104,6 +108,10 @@
                          <form v-if="name == 'City'" @submit.prevent="add_city()" class="frmm" method="post" enctype="multipart/form-data">
                             <div v-if="method == 0">
                                 <form method="post" >
+                                    <div class=" form-group col-md-6">
+                                        <label>name</label>
+                                        <b-form-select  v-model="name_city" :options="keys_file"></b-form-select>
+                                    </div>
                                     <div class="form-group files">
                                         <input  type="file" accept=".xls,.xlsx" @change="readExcel" value="import excel">
                                     </div> 
@@ -135,15 +143,11 @@ export default {
         type_search : String,
         msg : String,
     },
+    
     data(){
         return{
-             options: [
-                { value: 3 , text: '3' },
-                { value: 5 , text: '5' },
-                { value: 10, text: '10' },
-                { value: 15, text: '15' },
-                { value: 15, text: '20'}
-            ],
+            keys_file : [],
+             options: [3,5,10,15],
             name_file : "",
             method : 1,
             country : {
@@ -152,6 +156,7 @@ export default {
                 dialcode : "",
                 curency : "",
             },
+            countries : [],
             colonnes : {
                 name : "",
                 code : "",
@@ -187,11 +192,10 @@ export default {
         const fileReader = new FileReader(); // construction function that can read the file content
         fileReader.onload = ev => {
           const data = ev.target.result;
-          const workbook = XLSX.read(data, {
-                type: "binary" // binary
-          });
+          const workbook = XLSX.read(data, {type: "binary" });
         const wsname = workbook.SheetNames[0]; //take the first sheet
         this.tab = XLSX.utils.sheet_to_json(workbook.Sheets[wsname]); //Get the data in this table
+        this.keys_file = Object.keys(Object.assign(...XLSX.utils.sheet_to_json(workbook.Sheets[wsname])))
         };
         fileReader.readAsBinaryString(files[0]); // read file, trigger onload
         },
@@ -203,18 +207,25 @@ export default {
                 this.msg = "";
                 }
             }else{
-                if(this.tab.length == 0){
-                    this.msg="there is no file !"
+                if(this.tab.length == 0 || !this.colonnes.name || !this.colonnes.code || !this.colonnes.dialcode || !this.colonnes.curency){
+                    this.msg="choose file and the colonnes !"
                 }else{
-                    this.$emit('add_country',this.tab);
+                    this.tab.forEach(element => {
+                        this.countries.push({
+                            name : element[this.colonnes.name],
+                            code : element[this.colonnes.code],
+                            dialcode : element[this.colonnes.dialcode],
+                            curency : element[this.colonnes.curency],
+                        });
+                    });   
+                    this.$emit('add_country',this.countries);
                     this.msg = "";
                 }
                 
             }
-            
-            
+                    
         },
-        add_province : function() {
+         add_province : function() {
             if(this.method == 1){
                 if(this.name_pr){
                     this.tab.push({name : this.name_pr});
@@ -222,10 +233,15 @@ export default {
                     this.msg = "";
                 }
             }else{
-                if(this.tab.length == 0){
-                    this.msg="there is no file !"
+                if(this.tab.length == 0 || !this.name_pr){
+                    this.msg="choose file and the colonnes !"
                 }else{
-                    this.$emit('add_province',this.tab);
+                    this.tab.forEach(element => {
+                        this.countries.push({
+                            name : element[this.name_pr],
+                        });
+                    });   
+                    this.$emit('add_province',this.countries);
                     this.msg = "";
                 }
                 
@@ -239,12 +255,18 @@ export default {
                 this.msg = "";
             }
             }else{
-                if(this.tab.length == 0){
-                    this.msg="there is no file !"
+                if(this.tab.length == 0 || !this.name_city){
+                    this.msg="choose file and the colonnes !"
                 }else{
-                    this.$emit('add_city',this.tab);
+                    this.tab.forEach(element => {
+                        this.countries.push({
+                            name : element[this.name_city],
+                        });
+                    });   
+                    this.$emit('add_city',this.countries);
                     this.msg = "";
                 }
+                
             }
            
             

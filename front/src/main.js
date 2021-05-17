@@ -10,7 +10,7 @@ import "@fortawesome/fontawesome-free/css/all.css";
 import Paginate from 'vuejs-paginate';
 Vue.component('paginate', Paginate);
 Vue.config.productionTip = false;
-Vue.use(BootstrapVue)
+Vue.use(BootstrapVue);
 new Vue({
   router,
   store,

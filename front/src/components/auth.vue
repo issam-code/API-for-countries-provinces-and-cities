@@ -20,7 +20,6 @@
 </template>
 
 <script>
-import _ from 'lo'
 import validator from 'email-validator';
 export default {
     name : "login",
