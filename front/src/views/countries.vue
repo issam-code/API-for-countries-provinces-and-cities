@@ -30,15 +30,16 @@ export default {
         $('#add')
             .modal('hide')
             .find("input")
-            .val(null)
+            .val("")
             .end();
         alert(reponse.data);
+        this.msg="";
         this.$store.commit('refCountry');
         })
       .catch((errors) => {
         this.msg = errors.response.data;
       });
-      this.msg="";
+      
       
     },
      update_country :  function(country){

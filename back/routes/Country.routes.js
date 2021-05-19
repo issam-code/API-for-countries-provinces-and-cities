@@ -7,7 +7,7 @@ const City = require('../controllers/city.controller')
 const Province = require('../controllers/province.controller');
 const { updateCity } = require('../controllers/city.controller');
 
-
+router.get('/countries/add', Country.add);
 router.get('/countries/search', Country.getAllCountries);
 router.post('/countries/create',auth,Country.createCountry);
 router.delete('/countries/delete',auth,Country.deleteCountry);

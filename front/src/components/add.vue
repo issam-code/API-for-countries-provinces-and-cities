@@ -4,7 +4,7 @@
             <button type="button" class="btn btn-dark  col-md-2  container" data-toggle="modal" data-target="#add">
                 Add {{name}}
             </button>
-            <input class="form-control col-md-3 container" type="text" v-model="code" @keyup.enter="search()"  :placeholder="'Search by '+type_search">            
+            <input class="form-control col-md-3 container" type="text" v-model="code"   :placeholder="'Search by '+type_search">            
         </div>
         <div style="    width: 15%; margin-left: 20%;">
             <b-form-select @change="change" v-model="$store.state.limit" :options="options"></b-form-select>
@@ -12,10 +12,10 @@
            
         <br>
         <div class="modal" id="add" >
-            <div  class="col-md-5 container my-5 " >
-                <div class="card">  
-                    <div class="card-header text-center">
-                            <h3>Add {{name}}</h3>	
+            <div  class="col-md-5 container my-5  " >
+                <div class="card bg-light">  
+                    <div class="card-header text-center bg-dark">
+                            <h3 class="text-white">Add {{name}}</h3>	
                     </div><br>
                     <b-form-group v-slot="{ ariaDescribedby }" >
                         <div class="text-center">
@@ -34,27 +34,27 @@
                     <div class=" card-body" >
                         <form v-if="name == 'Country'" @submit.prevent="add_country()" class="frmm" method="post" enctype="multipart/form-data">
                            <div v-if="method == 0">
-                                 <form method="post" >
+                                <form method="post" >
                                     <div class="row" style=" margin: -8px;">
                                         <div class=" form-group col-md-6">
                                             <label>name</label>
                                             <b-form-select  v-model="colonnes.name" :options="keys_file"></b-form-select>
                                         </div>
-                                    <div class=" form-group col-md-6">
-                                       <label>code</label>
-                                        <b-form-select  v-model="colonnes.code" :options="keys_file"></b-form-select>
+                                        <div class=" form-group col-md-6">
+                                        <label>code</label>
+                                            <b-form-select  v-model="colonnes.code" :options="keys_file"></b-form-select>
+                                        </div>
                                     </div>
-                                </div>
-                                 <div class="row" style="  margin: -8px;">
-                                     <div class=" form-group col-md-6">
-                                        <label>dialcode</label>
-                                        <b-form-select  v-model="colonnes.dialcode" :options="keys_file"></b-form-select>
-                                    </div>
-                                    <div class=" form-group col-md-6">
-                                      <label>curency</label>
-                                      <b-form-select  v-model="colonnes.curency" :options="keys_file"></b-form-select>
-                                    </div>
-                                </div> 
+                                    <div class="row" style="  margin: -8px;">
+                                        <div class=" form-group col-md-6">
+                                            <label>dialcode</label>
+                                            <b-form-select  v-model="colonnes.dialcode" :options="keys_file"></b-form-select>
+                                        </div>
+                                        <div class=" form-group col-md-6">
+                                          <label>curency</label>
+                                          <b-form-select  v-model="colonnes.curency" :options="keys_file"></b-form-select>
+                                        </div>
+                                    </div> 
                                     <div class="form-group files">
                                         <input id="fl"  type="file" accept=".xls,.xlsx" @change="readExcel" value="import excel">
                                     </div> 
@@ -116,13 +116,14 @@
                                         <input  type="file" accept=".xls,.xlsx" @change="readExcel" value="import excel">
                                     </div> 
                                 </form>
-                            </div>                            <div v-if="method == 1" class=" form-group">
+                            </div>                            
+                            <div v-if="method == 1" class=" form-group">
                                 <label></label>
                                 <input v-model="name_city" type="text" class="form-control" placeholder="Name " required>
                             </div>
-                                <span  class="text-center text-danger"><p >{{msg}}</p> </span>
+                            <span  class="text-center text-danger"><p >{{msg}}</p> </span>
                             <div class="card-footer">
-                            <button type="submit" class="btn btn-primary container">Add</button>
+                                <button type="submit" class="btn btn-primary  container">Add</button>
                             </div>
                         </form>
                     </div><br>
@@ -133,7 +134,7 @@
     
 </template>
 <script>
-// import _ from 'lodash';
+import _ from 'lodash';
 import XLSX from 'xlsx';
 import axios from 'axios';
 export default {
@@ -147,7 +148,7 @@ export default {
     data(){
         return{
             keys_file : [],
-             options: [3,5,10,15],
+            options: [3,5,10,15],
             name_file : "",
             method : 1,
             country : {
@@ -181,21 +182,17 @@ export default {
             if(this.name == "City"){
                 this.$store.commit('refCity');
             }
-       },
+        },
          readExcel(e) {
-            // _.delay(function() {
-            //     console.log("content");
-            //     }, 3000);
         const files = e.target.files;
         this.name_file=files[0].name;
-
         const fileReader = new FileReader(); // construction function that can read the file content
         fileReader.onload = ev => {
-          const data = ev.target.result;
-          const workbook = XLSX.read(data, {type: "binary" });
-        const wsname = workbook.SheetNames[0]; //take the first sheet
-        this.tab = XLSX.utils.sheet_to_json(workbook.Sheets[wsname]); //Get the data in this table
-        this.keys_file = Object.keys(Object.assign(...XLSX.utils.sheet_to_json(workbook.Sheets[wsname])))
+            const data = ev.target.result;
+            const workbook = XLSX.read(data, {type: "binary" });
+            const wsname = workbook.SheetNames[0]; //take the first sheet
+            this.tab = XLSX.utils.sheet_to_json(workbook.Sheets[wsname]); //Get the data in this table
+            this.keys_file = Object.keys(Object.assign(...XLSX.utils.sheet_to_json(workbook.Sheets[wsname])))
         };
         fileReader.readAsBinaryString(files[0]); // read file, trigger onload
         },
@@ -204,6 +201,12 @@ export default {
                 if(this.country.name && this.country.code && this.country.dialcode && this.country.curency){
                 this.tab.push(this.country);
                 this.$emit('add_country',[this.country]);
+                    this.country = {
+                        name : "",
+                        code : "",
+                        dialcode : "",
+                        curency : "",
+                    }
                 this.msg = "";
                 }
             }else{
@@ -219,17 +222,17 @@ export default {
                         });
                     });   
                     this.$emit('add_country',this.countries);
+                   this.keys_file = []; 
                     this.msg = "";
                 }
-                
             }
-                    
         },
          add_province : function() {
             if(this.method == 1){
                 if(this.name_pr){
                     this.tab.push({name : this.name_pr});
                     this.$emit('add_province',[{name : this.name_pr}]);
+                    this.name_pr = "";
                     this.msg = "";
                 }
             }else{
@@ -242,9 +245,10 @@ export default {
                         });
                     });   
                     this.$emit('add_province',this.countries);
+                    this.keys_file = []; 
+                    this.name_pr = "";
                     this.msg = "";
                 }
-                
             }
         },
         add_city : function() {
@@ -252,6 +256,7 @@ export default {
                 if(this.name_city){
                 this.tab.push({name : this.name_city});
                 this.$emit('add_city',[{name : this.name_city}]);
+                this.name_city="";
                 this.msg = "";
             }
             }else{
@@ -264,15 +269,16 @@ export default {
                         });
                     });   
                     this.$emit('add_city',this.countries);
+                    this.keys_file = []; 
+                    this.name_city="";
                     this.msg = "";
                 }
-                
             }
-           
-            
         },
-        search : async function(){
-            if(this.name == "Country"){
+    },
+   watch : {
+       code : _.debounce(async function() {
+           if(this.name == "Country"){
                 this.$store.state.countries = []; 
                 this.$store.state.countries = (await axios.get("http://localhost:3000/api/countries/search?code="+this.code+ "&page="+this.$store.state.page)).data.country;
             }
@@ -284,11 +290,8 @@ export default {
                 this.$store.state.cities = []; 
                 this.$store.state.cities = (await axios.get("http://localhost:3000/api/countries/" +  this.$route.params.code + "/" + this.$route.params.name_pr + "/search?name="+this.code + "&page="+this.$store.state.page)).data.city;
             }
-        }
-    },
-    watch:{
-        
-    }
+       }, 1500),
+   }
 }
 </script>
 <style>
