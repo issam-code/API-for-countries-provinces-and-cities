@@ -1,14 +1,25 @@
 <template>
     <div class="add_cn">
-        <div class="row  " style="padding:10px;   padding-top: 100px;  padding-bottom: 50px;">
+        <i style="margin-top: 50px; margin-left: 100px;cursor: pointer;" @click="$router.go(-1)" class="fas fa-arrow-left fa-lg"></i>
+        <div class="row  " style="margin: 40px;">
             <button type="button" class="btn btn-dark  col-md-2  container" data-toggle="modal" data-target="#add">
                 Add {{name}}
             </button>
+
             <input class="form-control col-md-3 container" type="text" v-model="code"   :placeholder="'Search by '+type_search">            
         </div>
-        <div style="    width: 15%; margin-left: 20%;">
-            <b-form-select @change="change" v-model="$store.state.limit" :options="options"></b-form-select>
+
+         <div class="row  " >
+             <div class="col-md-2  container" style=" margin-left: 15%;">
+                <h6 style="margin-top: 10px;" class="text-secondary">Acceil/{{this.$route.params.code}}/{{this.$route.params.name_pr}}</h6>
+            </div>
+             
+             <div class="col-md-2  container" >
+                <b-form-select class="bg-light" @change="change" v-model="$store.state.limit" :options="options"></b-form-select>
+            </div>
+            
         </div>
+        
            
         <br>
         <div class="modal" id="add" >
@@ -148,7 +159,7 @@ export default {
     data(){
         return{
             keys_file : [],
-            options: [3,5,10,15],
+            options: [5,10,15,20],
             name_file : "",
             method : 1,
             country : {

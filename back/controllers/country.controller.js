@@ -133,109 +133,135 @@ module.exports = class Countries{
          res.status(500).json({error: error})
       }
    }
-
-   static async add(req,res){      
-      const data = require('../data.json');
+   static async add(req,res){    
+      const data = Countries.reforme(req.query);
       try {
-          const country = await Country.findOne({code : data[0].iso2});
-          if(!country){
-             res.status(404).send( "There is no country with this code" )
-          }
-          var provinces=[];
-          var cities = [];
-          var name ="";
-          for(let i = 0 ; i<data.length ; i++){
-            name=data[i].admin_name;
-            let a=0;
-            provinces.forEach(element => {
-               if(name == element.name){
-                  a++;
+         const pr_add=[];
+         const pr_not=[];
+         const ct_add=[];
+         const ct_not=[];
+         if (data){
+            const country1 = await Country.findOne({name : data.name});
+            const country2 = await Country.findOne({code : data.code});
+            if(country1 || country2){
+               if(country1){
+                  res.status(404).send(country1.name + " : name is already exist" );
                }
-            });
-            if(a == 0 ){
-               for(let j = 0 ; j<data.length ; j++){
-                  if(name == data[j].admin_name){
-                     cities.push(data[j].city);
-                  }
+               if(country2){
+                  res.status(404).send(country2.code + " : code is already exist" );
+
                }
-               provinces.push({name : name, cities : cities});
+            }else{
+               await Country.insertMany([{name : data.name ,code : data.code , dialcode : data.dialcode , curency : data.curency}])
             }
-            cities = [];
-          }
-         //  res.send(provinces);
-          if (provinces.length > 0){
-             const pr_add=[];
-             const pr_not=[];
-             const ct_add=[];
-             const ct_not=[];
-             for (let i = 0; i < provinces.length; i++) {
-                const e = provinces[i];
-                const pr = await Province.findOne({name : e.name , country : country._id });
+            const country = await Country.findOne({code : data.code});
+            if(!country){
+               res.status(404).send( "There is no country with this code" )
+            }
+            
+            if (data.provinces.length > 0){
+               for (let i = 0; i < data.provinces.length; i++) {
+                  const e = data.provinces[i];
+                  const pr = await Province.findOne({name : e.name , country : country._id });
                   if(pr){
-                      pr_not.push(pr.name );
+                     pr_not.push(pr.name );
                   }else{
-                      const p = new Province({name : e.name})
-                      const province = await p.save();
-                      var prs = country.provinces;
-                      prs.push(province._id);
-                      await Province.updateOne(  {_id : province._id} , {
-                          $set: { country : country._id  } },{ new : true}
-                      );
-                      await Country.updateOne({code : data[0].iso2}, {
-                          $set: { provinces : prs } },{ new : true}
-                      );
-                      if (e.cities.length > 0){
-                          for (let i = 0; i < e.cities.length; i++) {
-                          const a = e.cities[i];
-                          const city1 = await City.findOne({name: a , province : province._id })
-                          if(city1){
-                              ct_not.push(city1.name );
-                          }else{
+                     const p = new Province({name : e.name})
+                     const province = await p.save();
+                     var prs = country.provinces;
+                     prs.push(province._id);
+                     await Province.updateOne(  {_id : province._id} , {
+                        $set: { country : country._id  } },{ new : true}
+                     );
+                     await Country.updateOne({code : data.code}, {
+                        $set: { provinces : prs } },{ new : true}
+                     );
+                     if (e.cities.length > 0){
+                        for (let i = 0; i < e.cities.length; i++) {
+                           const a = e.cities[i];
+                           const city1 = await City.findOne({name: a , province : province._id })
+                           if(city1){
+                                 ct_not.push(city1.name );
+                           }else{
                               const c = new City({name : a})
                               const city = await c.save();
                               var cts = province.cities;
                               cts.push(city._id);
                               await City.updateOne(  {_id : city._id} , {
-                                  $set: { country : country._id , province : province._id } },{ new : true}
+                                 $set: { country : country._id , province : province._id } },{ new : true}
                               );
                               await Province.updateOne({name : e.name}, {
-                                  $set: { cities : cts } },{ new : true}
+                                 $set: { cities : cts } },{ new : true}
                               );
                               ct_add.push(a);
-                              }
-                          }
-                          pr_add.push(e.name);
-                      }
-                
+                           }
+                        }
+                        pr_add.push(e.name);
+                     }
                   }
-              }
-              var reponse="";
-              if(pr_not.length > 0){
-                  reponse += "\nProvinces already exists : " + pr_not ;
-              }
-             
-                if(pr_add.length > 0){
-                  reponse +="\nProvinces Added :" + pr_add  ;
-              }
-              if(ct_not.length > 0){
-                  reponse += "\nCities already exists : "  + ct_not ;
-              }
-             
-                if(ct_add.length > 0){
-                  reponse +="\nCities Added :" + ct_add  ;
-              }
-              res.send(reponse);
-          }else{
-              res.status(404).json("no data !")
-          }
-          
+               }
+               var reponse="";
+               if(pr_not.length > 0){
+                     reponse += "\nProvinces already exists : " + pr_not ;
+               }
+               
+                  if(pr_add.length > 0){
+                     reponse +="\nProvinces Added :" + pr_add  ;
+               }
+               if(ct_not.length > 0){
+                     reponse += "\nCities already exists : "  + ct_not ;
+               }
+               
+                  if(ct_add.length > 0){
+                     reponse +="\nCities Added :" + ct_add  ;
+               }
+               res.send(reponse);
+            }else{
+               res.status(404).json("no data !")
+            }
+         }else{
+            res.status(404).send("no country !");
+         }
       }catch (error) {
           console.log(error)
           res.status(500).json({error: error})
       }
       
   }
-
+   static  reforme(r){ 
+      const data = require("../data/"+r.code+".json");
+      if(!data){
+         return 0;
+      }
+      var provinces=[];
+      var cities = [];
+      var name ="";
+      for(let i = 0 ; i<data.length ; i++){
+         name=data[i].admin_name;
+         let a=0;
+         provinces.forEach(element => {
+            if(name == element.name){
+               a++;
+            }
+         });
+         if(a == 0 ){
+            for(let j = 0 ; j<data.length ; j++){
+               if(name == data[j].admin_name){
+                  cities.push(data[j].city);
+               }
+            }
+            provinces.push({name : name, cities : cities});
+         }
+         cities = [];
+      }
+      return {
+         name : data[0].country,
+         code : data[0].iso2,
+         dialcode : r.dialcode,
+         curency : r.curency,
+         provinces : provinces
+      }
+   }
 
 
    

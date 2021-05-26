@@ -22,7 +22,8 @@ export default {
     },
    
     async created () {
-        this.$store.commit('refCity');    },
+        this.$store.commit('refCity');
+    },
     methods : {
          add_city :   function(city){
             this.$store.dispatch('add_city',{name : city, code : this.$route.params.code , name_pr : this.$route.params.name_pr} )

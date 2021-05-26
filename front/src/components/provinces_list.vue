@@ -7,15 +7,18 @@
                     <tr>
                         <th scope="col" class="tha">#</th>
                         <th scope="col" class="tha">Name of Province</th>
-                        
+                        <th scope="col" class="tha">Actions</th>                        
                     </tr>
                 </thead>
                 <tbody v-for="(c,i) in this.$store.state.provinces" :key="i">
                     <tr>
+
                         <td>{{i+1}}</td>
-                        <a href="" @click="go_to_city(c.name)"><td >{{c.name}}</td></a>
-                        <td><i class="fas fa-edit" @click="name = c.name;id=c._id"  data-toggle="modal" data-target="#update_province"></i></td>
-                        <td><i @click="delete_province(c._id)" class="fas fa-trash-alt"></i></td>
+                        <div style="cursor: pointer;color: mediumblue;" @click="go_to_city(c.name)"><td >{{c.name}}</td></div>
+                        <td>
+                            <i style="cursor: pointer;margin-right : 70px" class="fas fa-edit" @click="name = c.name;id=c._id"  data-toggle="modal" data-target="#update_province"></i>
+                            <i style="cursor: pointer;" @click="delete_province(c._id)" class="fas fa-trash-alt"></i>
+                        </td>
                     </tr> 
                 </tbody>
             </table>
@@ -84,7 +87,9 @@ export default {
             
         },
         go_to_city : function(name){
-        this.$router.push({ path: `/Countries/${this.$route.params.code}/${name}` })
+            this.$store.state.cities = [];
+            this.$store.state.page = 0;
+            this.$router.push({ path: `/Countries/${this.$route.params.code}/${name}` })
       }
     },
     

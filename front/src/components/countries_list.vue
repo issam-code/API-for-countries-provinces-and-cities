@@ -10,17 +10,20 @@
                         <th scope="col" class="tha">Code</th>
                         <th scope="col" class="tha">Dialcode</th>
                         <th scope="col" class="tha">Curency</th>
+                        <th scope="col" class="tha">Actions</th>                        
                     </tr>
                 </thead>
                 <tbody v-for="(c,i) in this.$store.state.countries" :key="i">
                     <tr>
                         <td>{{i+1}}</td>
-                        <a href="" @click="go_to_pr(c.code)"><td >{{c.name}}</td></a>
+                        <div style="cursor: pointer;color: mediumblue;" @click="go_to_pr(c.code,c.name)"><td >{{c.name}}</td></div>
                         <td>{{c.code}}</td>
                         <td>{{c.dialcode}}</td>
                         <td>{{c.curency}}</td>
-                        <td><i class="fas fa-edit" @click="country = c;id=c._id"  data-toggle="modal" data-target="#update_country"></i></td>
-                        <td><i @click="delete_country(c._id)" class="fas fa-trash-alt"></i></td>
+                        <td>
+                            <i style="cursor: pointer;margin-right : 70px" class="fas fa-edit" @click="country = c;id=c._id"  data-toggle="modal" data-target="#update_country"></i>
+                            <i style="cursor: pointer;" @click="delete_country(c._id)" class="fas fa-trash-alt"></i>
+                        </td>
                     </tr> 
                 </tbody>
             </table>
@@ -105,8 +108,11 @@ export default {
             this.$emit('update_country',{id : this.id, country : this.country});
             
         },
-         go_to_pr : function(code){
-        this.$router.push({ path: `/Countries/${code}` })
+        go_to_pr : function(code,name){
+            this.$store.state.provinces = [];
+            this.$store.state.page = 0;
+            this.$store.state.country=name;
+            this.$router.push({ path: `/Countries/${code}` });
       }
     },
     

@@ -7,6 +7,7 @@
                     <tr>
                         <th scope="col" class="tha">#</th>
                         <th scope="col" class="tha">Name of City</th>
+                        <th scope="col" class="tha">Actions</th>                        
                         
                     </tr>
                 </thead>
@@ -14,8 +15,10 @@
                     <tr>
                         <td>{{i+1}}</td>
                         <td>{{c.name}}</td>
-                        <td><i class="fas fa-edit" @click="name = c.name;id=c._id"  data-toggle="modal" data-target="#update_city"></i></td>
-                        <td><i @click="delete_city(c._id)" class="fas fa-trash-alt"></i></td>
+                        <td>
+                            <i style="cursor: pointer; margin-right : 70px" class="fas fa-edit" @click="name = c.name;id=c._id"  data-toggle="modal" data-target="#update_city"></i>
+                            <i style="cursor: pointer;" @click="delete_city(c._id)" class="fas fa-trash-alt"></i>
+                        </td>
                     </tr> 
                 </tbody>
             </table>
